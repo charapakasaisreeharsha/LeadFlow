@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>LeadFlow — Upload</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="icon" type="image/png" href="/static/images/favicon.png">
+</head>
+<body>
+
+<div class="page-loader hidden" id="page-loader"><div class="spinner"></div></div>
+
+<nav class="nav">
+    <span class="nav-brand">
+        <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        LeadFlow
+    </span>
+    <a href="#" class="nav-link active nav-hide-mobile">
+        <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Upload
+    </a>
+    <a href="#" class="nav-link nav-hide-mobile" id="nav-datasets">
+        <svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+        Datasets
+    </a>
+    <div class="nav-right">
+        <button class="theme-toggle" id="theme-toggle" title="Toggle theme" aria-label="Toggle dark/light mode">
+            <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+    </div>
+</nav>
+
+<main class="page" id="page-upload">
+    <div class="upload-hero">
+        <h1 class="title">Import Your Leads</h1>
+        <p class="subtitle">Upload an Excel sheet — we'll detect columns, let you choose what matters, then generate a live CRM.</p>
+
+        <label class="drop-zone" id="dropZone">
+            <input type="file" id="excelFile" accept=".xlsx,.xls" hidden>
+            <div class="drop-icon">↑</div>
+            <div class="drop-label">Drop your Excel file here, or <span class="drop-link">browse</span></div>
+            <div class="drop-hint">.xlsx / .xls</div>
+        </label>
+
+        <div id="file-name" class="file-name hidden"></div>
+
+        <button class="btn-primary" id="uploadBtn" onclick="uploadFile()" disabled>
+            Read Sheet
+        </button>
+    </div>
+
+    <div id="result" class="result-panel hidden"></div>
+</main>
+
+<!-- Datasets modal -->
+<div class="modal hidden" id="datasets-modal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h2>Your Datasets</h2>
+            <button onclick="closeModal()" class="modal-close">✕</button>
+        </div>
+        <div id="datasets-list" class="datasets-list"></div>
+    </div>
+</div>
+
+<!-- Delete confirmation modal -->
+<div class="modal hidden" id="confirm-modal">
+    <div class="modal-box confirm-box">
+        <div class="modal-header">
+            <h2>Delete Dataset</h2>
+            <button onclick="closeConfirmModal()" class="modal-close">✕</button>
+        </div>
+        <p class="confirm-text" id="confirm-text">Are you sure?</p>
+        <div class="confirm-actions">
+            <button class="btn-ghost" onclick="closeConfirmModal()">Cancel</button>
+            <button class="btn-danger" id="confirm-delete-btn">Delete</button>
+        </div>
+    </div>
+</div>
+
+<!-- Bottom Nav (mobile + tablet) -->
+<nav class="bottom-nav" aria-label="Mobile navigation">
+    <div class="bnav-inner">
+        <button class="bnav-item active" onclick="window.location.href='/'">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Upload
+        </button>
+        <button class="bnav-item" id="bnav-datasets" onclick="loadDatasets()">
+            <svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
+            Your Data
+        </button>
+        <button class="bnav-item" onclick="toggleTheme()">
+            <svg viewBox="0 0 24 24" id="bnav-theme-icon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            Theme
+        </button>
+    </div>
+</nav>
+
+<script src="/static/js/upload.js"></script>
+<script>
+// ── Theme persistence ─────────────────────────────────
+(function() {
+    const saved = localStorage.getItem('lf-theme') || 'dark';
+    if (saved === 'light') document.documentElement.setAttribute('data-theme', 'light');
+    updateThemeIcon(saved);
+})();
+
+function updateThemeIcon(theme) {
+    const bnavIcon = document.getElementById('bnav-theme-icon');
+    if (!bnavIcon) return;
+    bnavIcon.innerHTML = theme === 'light'
+        ? '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>'
+        : '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+}
+
+function toggleTheme() {
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    const next = isLight ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', next === 'dark' ? '' : 'light');
+    localStorage.setItem('lf-theme', next);
+    updateThemeIcon(next);
+}
+
+document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+
+document.getElementById('nav-datasets').addEventListener('click', loadDatasets);
+</script>
+</body>
+</html>

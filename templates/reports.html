@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>LeadFlow — Reports</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="icon" type="image" href="./logo.png">
+</head>
+<body data-dataset-id="{{ dataset_id }}">
+
+<div class="page-loader" id="page-loader"><div class="spinner"></div></div>
+
+<nav class="nav">
+    <a href="/" class="nav-brand">
+        <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        LeadFlow
+    </a>
+    <a href="#" id="back-crm" class="nav-link nav-hide-mobile">← CRM</a>
+    <span class="nav-link active">Reports</span>
+    <div class="nav-right">
+        <button class="theme-toggle" id="theme-toggle" title="Toggle theme" aria-label="Toggle dark/light mode">
+            <svg class="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+            <svg class="icon-moon" viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+    </div>
+</nav>
+
+<main class="reports-page">
+    <h1 class="reports-title">Campaign Report</h1>
+    <p class="reports-sub" id="reports-sub">—</p>
+
+    <div class="stat-grid" id="stat-grid">
+        <div class="stat-card">
+            <div class="stat-val" id="stat-total">—</div>
+            <div class="stat-label">Total Leads</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-val" id="stat-called">—</div>
+            <div class="stat-label">Called</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-val" id="stat-pending">—</div>
+            <div class="stat-label">Pending</div>
+        </div>
+        <div class="stat-card highlight">
+            <div class="stat-val" id="stat-followups">—</div>
+            <div class="stat-label">Follow-ups</div>
+        </div>
+    </div>
+
+    <div class="chart-section">
+        <h2 class="section-heading">Status Breakdown</h2>
+        <div class="bar-chart" id="bar-chart"></div>
+    </div>
+
+    <div class="followup-section">
+        <h2 class="section-heading">Leads Needing Follow-up</h2>
+        <div id="followup-list" class="followup-list"></div>
+    </div>
+</main>
+
+<!-- Bottom Nav (mobile + tablet) -->
+<nav class="bottom-nav" aria-label="Mobile navigation">
+    <div class="bnav-inner">
+        <button class="bnav-item" onclick="window.location.href='/'">
+            <svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Upload
+        </button>
+        <button class="bnav-item" id="bnav-crm" onclick="goToCRM()">
+            <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Leads
+        </button>
+        <button class="bnav-item active">
+            <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Reports
+        </button>
+        <button class="bnav-item" onclick="toggleTheme()">
+            <svg viewBox="0 0 24 24" id="bnav-theme-icon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            Theme
+        </button>
+    </div>
+</nav>
+
+<script src="/static/js/reports.js"></script>
+<script>
+// ── Theme persistence ─────────────────────────────────
+(function() {
+    const saved = localStorage.getItem('lf-theme') || 'dark';
+    if (saved === 'light') document.documentElement.setAttribute('data-theme', 'light');
+    updateThemeIcon(saved);
+})();
+
+function updateThemeIcon(theme) {
+    const bnavIcon = document.getElementById('bnav-theme-icon');
+    if (!bnavIcon) return;
+    bnavIcon.innerHTML = theme === 'light'
+        ? '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>'
+        : '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+}
+
+function toggleTheme() {
+    const isLight = document.documentElement.getAttribute('data-theme') === 'light';
+    const next = isLight ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', next === 'dark' ? '' : 'light');
+    localStorage.setItem('lf-theme', next);
+    updateThemeIcon(next);
+}
+
+document.getElementById('theme-toggle').addEventListener('click', toggleTheme);
+
+function goToCRM() {
+    const href = document.getElementById('back-crm')?.href;
+    if (href && href !== '#') { showPageLoader(); window.location.href = href; }
+}
+
+function showPageLoader() {
+    const loader = document.getElementById('page-loader');
+    if (loader) loader.classList.remove('hidden');
+}
+</script>
+</body>
+</html>
