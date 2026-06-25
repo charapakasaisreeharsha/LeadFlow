@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Ping Render
+      - name: Wake Render
         run: |
-          curl -I https://YOUR-APP.onrender.com/health
+          echo "Pinging Render..."
+          curl --fail --location https://leadflow-asjj.onrender.com/health
+          echo "Success!"
