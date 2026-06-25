@@ -10,6 +10,20 @@ from database import supabase
 
 app = FastAPI()
 
+
+# ──────────────────────────────────────────────
+# Health Check
+# ──────────────────────────────────────────────
+
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
+
+
+# ──────────────────────────────────────────────
+# Static Files
+# ──────────────────────────────────────────────
+
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
